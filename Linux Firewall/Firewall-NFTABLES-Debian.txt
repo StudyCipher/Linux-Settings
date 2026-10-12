@@ -1,0 +1,136 @@
+# To install NFTABLES:
+sudo apt update && sudo apt upgrade -y
+sudo apt install iptables && sudo apt install nftables -y
+
+
+# To Enable and Start the service:
+sudo systemctl enable nftables.service
+sudo systemctl start nftables.service
+
+
+# To reboot NFTLABES:
+sudo systemctl restart nftables.service
+sudo systemctl restart nftables
+
+
+# To check NFABLES status:
+systemctl status nftables.service
+
+
+# To reload program service:
+sudo systemctl reload nftables.service
+
+
+# To list all rules and verify any error in config on CLI:
+sudo nft list ruleset
+
+sudo nft -f /etc/nftables.conf
+
+
+# Here is where the rules are saved:
+sudo vim /etc/nftables.conf
+
+# Back up:
+
+flush ruleset
+
+table inet filter {
+        chain input {
+                type filter hook input priority filter; policy drop;
+
+                # Drop and give permission to already connected connections
+                ct state invalid drop
+                ct state {established, related} accept
+
+                # Accept and Drop all inccesary loopback connection
+                iif lo accept
+                iif !=lo ip daddr 127.0.0.1/8 drop
+                iif !=lo ip6 daddr ::1/128 drop
+
+                # Allow ssh,http
+                tcp dport {ssh} accept
+
+                # Drop specific ports
+        }
+        chain forward {
+                type filter hook forward priority filter; policy drop;
+
+                # Drop specific ports
+        }
+        chain output {
+                type filter hook output priority filter; policy accept
+
+                # Drop specific ports
+        }
+}
+
+
+# Final Config:
+
+flush ruleset
+
+table inet filter {
+        chain input {
+                type filter hook input priority 0;
+
+                # Firewall policy
+                policy drop;
+
+                # Block DNS              
+                ip saddr { 1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4 } drop
+		ip6 saddr { 2606:4700:4700::1111, 2606:4700:4700::1001, 2001:4860:4860::8888, 2001:4860:4860::8844 } drop
+
+                # Drop and give permission to already connected connections
+                ct state invalid drop
+                ct state {established, related} accept
+
+                # Allow incoming pings
+                #ip protocol icmp limit rate 1/second accept
+
+                # Accept and Drop all not needed loopback connections
+                iif lo accept
+                iif !=lo ip daddr 127.0.0.1/8 drop
+                iif !=lo ip6 daddr ::1/128 drop
+
+                # To do not break ipv6
+                #ip6 nexthdr icmpv6 icmpv6 type {nd-neighbor-solicit, nd-router-advert, nd-neighbor-advert} accept
+
+                # Allow SSH
+                #ip daddr 192.168.1.1 tcp dport 22 ct state new accept
+                #ip daddr 192.168.1.109 tcp dport 22 ct state new accept
+
+                # Drop specific ports
+        }
+        chain forward {
+                type filter hook forward priority 0;
+
+                # Firewall policy
+                policy drop;
+
+                # Drop specific ports
+        }
+        chain output {
+                type filter hook output priority 0;
+
+                # Firewall policy
+                policy accept;
+
+                # Block DNS
+                ip saddr { 1.1.1.1, 1.0.0.1, 8.8.8.8, 8.8.4.4 } drop
+		ip6 saddr { 2606:4700:4700::1111, 2606:4700:4700::1001, 2001:4860:4860::8888, 2001:4860:4860::8844 } drop
+
+                # Allow traffic from established and related packets, drop invalid
+                ct state vmap { established : accept, related : accept, invalid : drop }
+
+                # Accepted ports out (DNS / DHCP / TIME / WEB / DNS over TLS for package updates / SMTP)
+                ct state new udp dport { 53, 67, 123, 547, 817 } accept
+                ct state new tcp dport { 53, 80, 443, 587, 817, 853, 4460 } accept
+
+                # Allow SSH
+                #ip daddr 192.168.1.1 tcp dport 22 ct state new accept
+                #ip daddr 192.168.1.109 tcp dport 22 ct state new accept
+
+                # Drop specific ports
+
+        }
+}
