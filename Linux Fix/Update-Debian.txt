@@ -1,1 +1,31 @@
+sudo date
+sudo hwclock --systohc
+sudo hwclock
 
+sudo rm ~/.bash_history
+sudo rm -rf ~/.ccache && history -c
+sudo apt update -y && sudo apt full-upgrade -y
+sudo apt update --fix-missing && sudo apt-get -f install
+sudo apt --fix-broken install
+sudo apt-get dist-upgrade && sudo do-release-upgrade -d
+sudo fwupdmgr update -y
+
+sudo flatpak update && sudo flatpak repair
+sudo flatpak uninstall --unused
+
+sudo snap refresh
+
+sudo systemctl stop clamav-freshclam
+sudo freshclam
+sudo systemctl enable clamav-freshclam --now
+sudo systemctl start clamav-freshclam
+
+
+sudo apt autoremove -y --purge
+sudo apt autoremove -y && sudo apt autopurge -y
+sudo sync && sudo sh -c 'echo 3 >  /proc/sys/vm/drop_caches'
+sudo apt-get autoclean && sudo apt-get clean
+sudo rm -rf ~/.ccache && history -c
+sudo rm ~/.bash_history
+
+sudo systemctl reboot
