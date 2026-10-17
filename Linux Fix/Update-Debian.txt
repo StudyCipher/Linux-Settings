@@ -1,31 +1,68 @@
+# This show time and updates clock.
 sudo date
 sudo hwclock --systohc
 sudo hwclock
 
+# Removes Terminal history and cache.
 sudo rm ~/.bash_history
 sudo rm -rf ~/.ccache && history -c
+
+# Updates APT all related programs and fix dependencies.
 sudo apt update -y && sudo apt full-upgrade -y
 sudo apt update --fix-missing && sudo apt-get -f install
 sudo apt --fix-broken install
+
+# Updates APT all related programs, additionally upgrade OS version.
 sudo apt-get dist-upgrade && sudo do-release-upgrade -d
+
+# Updates APT and computer deep drivers.
 sudo fwupdmgr update -y
 
+# Flatpak (From Flathub), it will update all related programs.
 sudo flatpak update && sudo flatpak repair
+
+# Flatpak (From Flathub), it will remove all non-necessary dependencies.
 sudo flatpak uninstall --unused
 
+# Snap (From Snap Store, mainly Ubuntu), it will update all related programs.
 sudo snap refresh
 
+## Clam Antivirus (Linux antivirus, only command line avaliable), it will update it.
+1) This stop the service named "clamav-freshclam".
 sudo systemctl stop clamav-freshclam
+
+2) This will update the databse.
 sudo freshclam
+
+3) These will enable and start service named "clamav-freshclam".
 sudo systemctl enable clamav-freshclam --now
 sudo systemctl start clamav-freshclam
 
-
+# Remove and purge (Deletes all configs files, if you run it as ROOT user) for non-necessary programs and dependencies.
 sudo apt autoremove -y --purge
 sudo apt autoremove -y && sudo apt autopurge -y
+
+# This delete system cache.
 sudo sync && sudo sh -c 'echo 3 >  /proc/sys/vm/drop_caches'
+
+# Remove and purge all non-necessary ().deb) files.
 sudo apt-get autoclean && sudo apt-get clean
+
+# Removes Terminal history and cache (Again).
 sudo rm -rf ~/.ccache && history -c
 sudo rm ~/.bash_history
 
+## All of these commands fully turn-off the sytem. Additionally reboot will fullly turn-off and get back the sytem again.
+# This is legacy command, it will force system to restart (Not recommened, may break sytem updates).
+sudo reboot
+
+# # This is legacy command, it will force system to turn-off (Not recommened, may break sytem updates).
+sudo shutdown now
+or
+sudo shutdown
+
+# This will restart the sytem (Waits for programs and sytem to repond).
 sudo systemctl reboot
+
+# This will turn-off the sytem (Waits for programs and sytem to repond).
+sudo systemctl poweroff
